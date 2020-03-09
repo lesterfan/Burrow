@@ -65,7 +65,7 @@ type KafkaZkClient struct {
 // explicitly configured, it is assumed that the Kafka cluster metadata is present in the ensemble root path. If the
 // cluster name is unknown, or if the server list is missing or invalid, this func will panic.
 func (module *KafkaZkClient) Configure(name, configRoot string) {
-	module.Log.Info("configuring")
+	module.Log.Info("lester: configuring zookeeper")
 
 	module.name = name
 	module.running = &sync.WaitGroup{}
@@ -116,7 +116,7 @@ func (module *KafkaZkClient) Configure(name, configRoot string) {
 // partition, and offset. A goroutine is also started to monitor the Zookeeper connection state, and reset the watches
 // in the case the the session expires.
 func (module *KafkaZkClient) Start() error {
-	module.Log.Info("starting")
+	module.Log.Info("lester: starting zookeeper")
 
 	zkconn, connEventChan, err := module.connectFunc(module.servers, time.Duration(module.zookeeperTimeout)*time.Second, module.Log)
 	if err != nil {
@@ -138,7 +138,7 @@ func (module *KafkaZkClient) Start() error {
 
 // Stop closes the Zookeeper client.
 func (module *KafkaZkClient) Stop() error {
-	module.Log.Info("stopping")
+	module.Log.Info("lester: stopping")
 
 	// Closing the ZK client will invalidate all the watches, which will close all the running goroutines
 	module.zk.Close()
@@ -149,6 +149,7 @@ func (module *KafkaZkClient) Stop() error {
 
 func (module *KafkaZkClient) connectionStateWatcher(eventChan <-chan zk.Event) {
 	defer module.running.Done()
+	module.Log.Info("lester: stopping")
 	for event := range eventChan {
 		if event.Type == zk.EventSession {
 			switch event.State {
@@ -157,7 +158,7 @@ func (module *KafkaZkClient) connectionStateWatcher(eventChan <-chan zk.Event) {
 				module.areWatchesSet = false
 			case zk.StateConnected:
 				if !module.areWatchesSet {
-					module.Log.Info("reinitializing watches")
+					module.Log.Info("lester: reinitializing watches")
 					module.groupLock.Lock()
 					module.groupList = make(map[string]*topicList)
 					module.groupLock.Unlock()
@@ -171,6 +172,7 @@ func (module *KafkaZkClient) connectionStateWatcher(eventChan <-chan zk.Event) {
 }
 
 func (module *KafkaZkClient) acceptConsumerGroup(group string) bool {
+	module.Log.Info("lester: acceptConsumerGroup")
 	if (module.groupWhitelist != nil) && (!module.groupWhitelist.MatchString(group)) {
 		return false
 	}
@@ -190,7 +192,7 @@ func (module *KafkaZkClient) waitForNodeToExist(zkPath string, logger *zap.Logge
 	nodeExists, _, existsWatchChan, err := module.zk.ExistsW(zkPath)
 	if err != nil {
 		// This is a real error (since NoNode will not return an error)
-		logger.Debug("failed to check existence of znode",
+		logger.Info("failed to check existence of znode",
 			zap.String("path", zkPath),
 			zap.String("error", err.Error()),
 		)
@@ -203,11 +205,11 @@ func (module *KafkaZkClient) waitForNodeToExist(zkPath string, logger *zap.Logge
 	}
 
 	// Wait for the node to exist
-	logger.Debug("waiting for node to exist", zap.String("path", zkPath))
+	logger.Info("waiting for node to exist", zap.String("path", zkPath))
 	event := <-existsWatchChan
 	if event.Type == zk.EventNotWatching {
 		// Watch is gone, so we're gone too
-		logger.Debug("exists watch invalidated",
+		logger.Info("exists watch invalidated",
 			zap.String("path", zkPath),
 		)
 		return false
@@ -221,10 +223,10 @@ func (module *KafkaZkClient) watchGroupList(eventChan <-chan zk.Event) {
 	event := <-eventChan
 	if event.Type == zk.EventNotWatching {
 		// We're done here
-		module.Log.Debug("group list watch invalidated")
+		module.Log.Info("group list watch invalidated")
 		return
 	}
-	module.Log.Debug("group list watch fired", zap.Int("event_type", int(event.Type)))
+	module.Log.Info("group list watch fired", zap.Int("event_type", int(event.Type)))
 	module.running.Add(1)
 	go module.resetGroupListWatchAndAdd(event.Type != zk.EventNodeChildrenChanged)
 }
@@ -248,7 +250,7 @@ func (module *KafkaZkClient) resetGroupListWatchAndAdd(resetOnly bool) {
 		defer module.groupLock.Unlock()
 		for _, group := range consumerGroups {
 			if !module.acceptConsumerGroup(group) {
-				module.Log.Debug("skip group",
+				module.Log.Info("skip group",
 					zap.String("group", group),
 					zap.String("reason", "whitelist"),
 				)
@@ -260,7 +262,7 @@ func (module *KafkaZkClient) resetGroupListWatchAndAdd(resetOnly bool) {
 					topics: make(map[string]*partitionCount),
 					lock:   &sync.RWMutex{},
 				}
-				module.Log.Debug("add group",
+				module.Log.Info("add group",
 					zap.String("group", group),
 				)
 				module.running.Add(1)
@@ -276,10 +278,10 @@ func (module *KafkaZkClient) watchTopicList(group string, eventChan <-chan zk.Ev
 	event := <-eventChan
 	if event.Type == zk.EventNotWatching {
 		// We're done here
-		module.Log.Debug("topic list watch invalidated", zap.String("group", group))
+		module.Log.Info("topic list watch invalidated", zap.String("group", group))
 		return
 	}
-	module.Log.Debug("topic list watch fired",
+	module.Log.Info("topic list watch fired",
 		zap.String("group", group),
 		zap.Int("event_type", int(event.Type)),
 	)
@@ -303,7 +305,7 @@ func (module *KafkaZkClient) resetTopicListWatchAndAdd(group string, resetOnly b
 	// Get the current group topic list and reset our watch
 	groupTopics, _, topicListEventChan, err := module.zk.ChildrenW(zkPath)
 	if err != nil {
-		logger.Debug("failed to read topic list", zap.String("error", err.Error()))
+		logger.Info("failed to read topic list", zap.String("error", err.Error()))
 		return
 	}
 	module.running.Add(1)
@@ -322,7 +324,7 @@ func (module *KafkaZkClient) resetTopicListWatchAndAdd(group string, resetOnly b
 					count: 0,
 					lock:  &sync.Mutex{},
 				}
-				logger.Debug("add topic", zap.String("topic", topic))
+				logger.Info("add topic", zap.String("topic", topic))
 				module.running.Add(1)
 				go module.resetPartitionListWatchAndAdd(group, topic, false)
 			}
@@ -336,13 +338,13 @@ func (module *KafkaZkClient) watchPartitionList(group, topic string, eventChan <
 	event := <-eventChan
 	if event.Type == zk.EventNotWatching {
 		// We're done here
-		module.Log.Debug("partition list watch invalidated",
+		module.Log.Info("partition list watch invalidated",
 			zap.String("group", group),
 			zap.String("topic", topic),
 		)
 		return
 	}
-	module.Log.Debug("partition list watch fired",
+	module.Log.Info("partition list watch fired",
 		zap.String("group", group),
 		zap.String("topic", topic),
 		zap.Int("event_type", int(event.Type)),
@@ -380,7 +382,7 @@ func (module *KafkaZkClient) resetPartitionListWatchAndAdd(group, topic string, 
 		defer module.groupList[group].topics[topic].lock.Unlock()
 		if int32(len(topicPartitions)) >= module.groupList[group].topics[topic].count {
 			for i := module.groupList[group].topics[topic].count; i < int32(len(topicPartitions)); i++ {
-				module.Log.Debug("add partition",
+				module.Log.Info("add partition",
 					zap.String("group", group),
 					zap.String("topic", topic),
 					zap.Int32("partition", i),
@@ -399,14 +401,14 @@ func (module *KafkaZkClient) watchOffset(group, topic string, partition int32, e
 	event := <-eventChan
 	if event.Type == zk.EventNotWatching {
 		// We're done here
-		module.Log.Debug("offset watch invalidated",
+		module.Log.Info("offset watch invalidated",
 			zap.String("group", group),
 			zap.String("topic", topic),
 			zap.Int32("partition", partition),
 		)
 		return
 	}
-	module.Log.Debug("offset watch fired",
+	module.Log.Info("offset watch fired",
 		zap.String("group", group),
 		zap.String("topic", topic),
 		zap.Int32("partition", partition),
@@ -463,7 +465,7 @@ func (module *KafkaZkClient) resetOffsetWatchAndSend(group, topic string, partit
 			Offset:      offset,
 			Order:       offsetStat.Mzxid,
 		}
-		module.Log.Debug("consumer offset",
+		module.Log.Info("consumer offset",
 			zap.String("group", group),
 			zap.String("topic", topic),
 			zap.Int32("partition", partition),

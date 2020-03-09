@@ -156,6 +156,7 @@ func (module *HTTPNotifier) Notify(status *protocol.ConsumerGroupStatus, eventID
 		zap.String("id", eventID),
 		zap.String("status", status.Status.String()),
 	)
+	logger.Info("lester: in Notify()")
 
 	var tmpl *template.Template
 	var method string

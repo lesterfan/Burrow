@@ -15,6 +15,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"regexp"
+	"strconv"
 	"sync"
 	"time"
 
@@ -233,11 +234,13 @@ func (module *KafkaClient) partitionConsumer(consumer sarama.PartitionConsumer, 
 	defer module.running.Done()
 	defer consumer.AsyncClose()
 
+	module.Log.Info("lester_consumerSubsystem: inside partitionConsumer(...)")
+
 	for {
 		select {
 		case msg := <-consumer.Messages():
 			if stopAtOffset != nil && msg.Offset >= stopAtOffset.Value {
-				module.Log.Debug("backfill consumer reached target offset, terminating",
+				module.Log.Info("lester_consumerSubsystem: backfill consumer reached target offset, terminating",
 					zap.Int32("partition", msg.Partition),
 					zap.Int64("offset", stopAtOffset.Value),
 				)
@@ -253,8 +256,10 @@ func (module *KafkaClient) partitionConsumer(consumer sarama.PartitionConsumer, 
 					Timestamp:   time.Now().Unix() * 1000,
 					Offset:      msg.Offset + 1, // emulating a consumer which should commit (lastSeenOffset+1)
 				}
+				module.Log.Info("lester_consumerSubsystem: Calling helpers.TimeoutSendStorageRequest(...)")
 				helpers.TimeoutSendStorageRequest(module.App.StorageChannel, burrowOffset, 1)
 			}
+			module.Log.Info("lester_consumerSubsystem: Calling module.processConsumerOffsetsMessage(...)")
 			module.processConsumerOffsetsMessage(msg)
 		case err := <-consumer.Errors():
 			module.Log.Error("consume error",
@@ -270,6 +275,7 @@ func (module *KafkaClient) partitionConsumer(consumer sarama.PartitionConsumer, 
 
 func (module *KafkaClient) startKafkaConsumer(client helpers.SaramaClient) error {
 	// Create the consumer from the client
+	module.Log.Info("lester_consumerSubsystem: startKafkaConsumer")
 	consumer, err := client.NewConsumerFromClient()
 	if err != nil {
 		module.Log.Error("failed to get new consumer", zap.Error(err))
@@ -278,6 +284,7 @@ func (module *KafkaClient) startKafkaConsumer(client helpers.SaramaClient) error
 	}
 
 	// Get a partition count for the consumption topic
+	module.Log.Info("lester_consumerSubsystem: client.Partitions(...)")
 	partitions, err := client.Partitions(module.offsetsTopic)
 	if err != nil {
 		module.Log.Error("failed to get partition count",
@@ -300,7 +307,15 @@ func (module *KafkaClient) startKafkaConsumer(client helpers.SaramaClient) error
 		zap.Int("count", len(partitions)),
 	)
 	for _, partition := range partitions {
+		module.Log.Info("lester_consumerSubsystem: Now consuming partition. ",
+			zap.String("topic", module.offsetsTopic),
+			zap.Int32("partition", partition),
+		)
 		pconsumer, err := consumer.ConsumePartition(module.offsetsTopic, partition, startFrom)
+		module.Log.Info("lester_consumerSubsystem: Consumed partition. ",
+			zap.String("topic", module.offsetsTopic),
+			zap.Int32("partition", partition),
+		)
 		if err != nil {
 			module.Log.Error("failed to consume partition",
 				zap.String("topic", module.offsetsTopic),
@@ -309,12 +324,17 @@ func (module *KafkaClient) startKafkaConsumer(client helpers.SaramaClient) error
 			)
 			return err
 		}
+		module.Log.Info("lester_consumerSubsystem: Consumed partition. ",
+			zap.String("topic", module.offsetsTopic),
+			zap.Int32("partition", partition),
+		)
 		module.running.Add(1)
+		module.Log.Info("lester_consumerSubsystem: Calling module.partitionConsumer(...)")
 		go module.partitionConsumer(pconsumer, nil)
 	}
 
 	if module.backfillEarliest {
-		module.Log.Debug("backfilling consumer offsets")
+		module.Log.Info("lester_consumerSubsystem: backfilling consumer offsets")
 		// Note: since we are consuming each partition twice,
 		// we need a second consumer instance
 		consumer, err := client.NewConsumerFromClient()
@@ -327,11 +347,15 @@ func (module *KafkaClient) startKafkaConsumer(client helpers.SaramaClient) error
 		waiting := len(partitions)
 		backfillStartedChan := make(chan error)
 		for _, partition := range partitions {
+			module.Log.Info("lester_consumerSubsystem: Calling lambda to startBackfillPartitionConsumer ",
+				zap.Int32("partition", partition),
+			)
 			go func(partition int32) {
 				backfillStartedChan <- module.startBackfillPartitionConsumer(partition, client, consumer)
 			}(partition)
 		}
 		for waiting > 0 {
+			module.Log.Info("lester_consumerSubsystem: waiting = " + strconv.Itoa(waiting))
 			select {
 			case err := <-backfillStartedChan:
 				waiting--
@@ -353,9 +377,11 @@ func (module *KafkaClient) processConsumerOffsetsMessage(msg *sarama.ConsumerMes
 		zap.Int32("offset_partition", msg.Partition),
 		zap.Int64("offset_offset", msg.Offset),
 	)
+	logger.Info("lester_consumerSubsystem: in processConsumerOffsetsMessage(...)")
 
 	if len(msg.Value) == 0 {
 		// Tombstone message - we don't handle them for now
+		logger.Info("lester_consumerSubsystem: dropped tombstone")
 		logger.Debug("dropped tombstone")
 		return
 	}
@@ -372,10 +398,13 @@ func (module *KafkaClient) processConsumerOffsetsMessage(msg *sarama.ConsumerMes
 
 	switch keyver {
 	case 0, 1:
+		logger.Info("lester_consumerSubsystem: case 0, 1: call module.decodeKeyAndOffset(...)")
 		module.decodeKeyAndOffset(msg.Offset, keyBuffer, msg.Value, logger)
 	case 2:
+		logger.Info("lester_consumerSubsystem: case 2: call module.decodeGroupMetadata(...)")
 		module.decodeGroupMetadata(keyBuffer, msg.Value, logger)
 	default:
+		logger.Info("lester_consumerSubsystem: case default")
 		logger.Warn("failed to decode",
 			zap.String("reason", "key version"),
 			zap.Int16("version", keyver),
@@ -431,9 +460,10 @@ func (module *KafkaClient) decodeKeyAndOffset(offsetOrder int64, keyBuffer *byte
 		zap.String("topic", offsetKey.Topic),
 		zap.Int32("partition", offsetKey.Partition),
 	)
+	offsetLogger.Info("lester_consumerSubsystem: in decodeKeyAndOffset(...)")
 
 	if !module.acceptConsumerGroup(offsetKey.Group) {
-		offsetLogger.Debug("dropped", zap.String("reason", "whitelist"))
+		offsetLogger.Info("dropped", zap.String("reason", "whitelist"))
 		return
 	}
 
@@ -449,8 +479,10 @@ func (module *KafkaClient) decodeKeyAndOffset(offsetOrder int64, keyBuffer *byte
 
 	switch valueVersion {
 	case 0, 1:
+		offsetLogger.Info("lester_consumerSubsystem: case 0, 1: calling module.decodeAndSendOffset(...)")
 		module.decodeAndSendOffset(offsetOrder, offsetKey, valueBuffer, offsetLogger, decodeOffsetValueV0)
 	case 3:
+		offsetLogger.Info("lester_consumerSubsystem: case 3: calling module.decodeAndSendOffset(...)")
 		module.decodeAndSendOffset(offsetOrder, offsetKey, valueBuffer, offsetLogger, decodeOffsetValueV3)
 	default:
 		offsetLogger.Warn("failed to decode",
@@ -462,6 +494,7 @@ func (module *KafkaClient) decodeKeyAndOffset(offsetOrder int64, keyBuffer *byte
 
 func (module *KafkaClient) decodeAndSendOffset(offsetOrder int64, offsetKey offsetKey, valueBuffer *bytes.Buffer, logger *zap.Logger, decoder func(*bytes.Buffer) (offsetValue, string)) {
 	offsetValue, errorAt := decoder(valueBuffer)
+	logger.Info("lester_consumerSubsystem: In decodeAndSendOffset(...)")
 	if errorAt != "" {
 		logger.Warn("failed to decode",
 			zap.Int64("offset", offsetValue.Offset),
@@ -481,14 +514,16 @@ func (module *KafkaClient) decodeAndSendOffset(offsetOrder int64, offsetKey offs
 		Offset:      offsetValue.Offset,
 		Order:       offsetOrder,
 	}
-	logger.Debug("consumer offset",
+	logger.Info("lester_consumerSubsystem: consumer offset",
 		zap.Int64("offset", offsetValue.Offset),
 		zap.Int64("timestamp", offsetValue.Timestamp),
 	)
+	logger.Info("lester_consumerSubsystem: calling helpers.TimeoutSendStorageRequest(...)")
 	helpers.TimeoutSendStorageRequest(module.App.StorageChannel, partitionOffset, 1)
 }
 
 func (module *KafkaClient) decodeGroupMetadata(keyBuffer *bytes.Buffer, value []byte, logger *zap.Logger) {
+	logger.Info("lester_consumerSubsystem: In decodeGroupMetadata(...)")
 	group, err := readString(keyBuffer)
 	if err != nil {
 		logger.Warn("failed to decode",
@@ -512,6 +547,7 @@ func (module *KafkaClient) decodeGroupMetadata(keyBuffer *bytes.Buffer, value []
 
 	switch valueVersion {
 	case 0, 1, 2, 3:
+		logger.Info("lester_consumerSubsystem: case 0, 1, 2, 3: Calling decodeAndSendGroupMetadata(...)")
 		module.decodeAndSendGroupMetadata(valueVersion, group, valueBuffer, logger.With(
 			zap.String("message_type", "metadata"),
 			zap.String("group", group),
@@ -529,10 +565,13 @@ func (module *KafkaClient) decodeGroupMetadata(keyBuffer *bytes.Buffer, value []
 func (module *KafkaClient) decodeAndSendGroupMetadata(valueVersion int16, group string, valueBuffer *bytes.Buffer, logger *zap.Logger) {
 	var metadataHeader metadataHeader
 	var errorAt string
+	logger.Info("lester_consumerSubsystem: in decodeAndSendGroupMetadata(...)")
 	switch valueVersion {
 	case 2, 3:
+		logger.Info("lester_consumerSubsystem: case 2,3: Calling decodeMetadataValueHeaderV2(...)")
 		metadataHeader, errorAt = decodeMetadataValueHeaderV2(valueBuffer)
 	default:
+		logger.Info("lester_consumerSubsystem: case default: Calling decodeMetadataValueHeader(...)")
 		metadataHeader, errorAt = decodeMetadataValueHeader(valueBuffer)
 	}
 	metadataLogger := logger.With(
@@ -549,12 +588,15 @@ func (module *KafkaClient) decodeAndSendGroupMetadata(valueVersion int16, group 
 		return
 	}
 	metadataLogger.Debug("group metadata")
+	logger.Info("lester_consumerSubsystem: Group metadata")
 	if metadataHeader.ProtocolType != "consumer" {
+		logger.Info("lester_consumerSubsystem: Skipped metadata because of unknown protocolType")
 		metadataLogger.Debug("skipped metadata because of unknown protocolType")
 		return
 	}
 
 	var memberCount int32
+	logger.Info("lester_consumerSubsystem: Reading the valueBuffer")
 	err := binary.Read(valueBuffer, binary.BigEndian, &memberCount)
 	if err != nil {
 		metadataLogger.Warn("failed to decode",
@@ -566,6 +608,7 @@ func (module *KafkaClient) decodeAndSendGroupMetadata(valueVersion int16, group 
 	// If memberCount is zero, clear all ownership
 	if memberCount == 0 {
 		metadataLogger.Debug("clear owners")
+		logger.Info("lester_consumerSubsystem: clear owners")
 		helpers.TimeoutSendStorageRequest(module.App.StorageChannel, &protocol.StorageRequest{
 			RequestType: protocol.StorageClearConsumerOwners,
 			Cluster:     module.cluster,
@@ -576,6 +619,7 @@ func (module *KafkaClient) decodeAndSendGroupMetadata(valueVersion int16, group 
 
 	count := int(memberCount)
 	for i := 0; i < count; i++ {
+		logger.Info("lester_consumerSubsystem: Calling decodeMetadataMember(...)")
 		member, errorAt := decodeMetadataMember(valueBuffer, valueVersion)
 		if errorAt != "" {
 			metadataLogger.Warn("failed to decode",
@@ -586,6 +630,7 @@ func (module *KafkaClient) decodeAndSendGroupMetadata(valueVersion int16, group 
 
 		for topic, partitions := range member.Assignment {
 			for _, partition := range partitions {
+				logger.Info("lester_consumerSubsystem: Calling helpers.TimeoutSendStorageRequest(...)")
 				helpers.TimeoutSendStorageRequest(module.App.StorageChannel, &protocol.StorageRequest{
 					RequestType: protocol.StorageSetConsumerOwner,
 					Cluster:     module.cluster,

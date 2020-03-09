@@ -560,6 +560,7 @@ func TestCoordinator_checkAndSendResponseToModules(t *testing.T) {
 		if testSet.ExpectSend {
 			mockModule.On("Notify", response, mock.MatchedBy(func(s string) bool { return true }), mock.MatchedBy(func(t time.Time) bool { return true }), testSet.ExpectClose).Return()
 		}
+		mockModule.On("GetLogger").Return(zap.NewExample().With(zap.Namespace("lester"), zap.Int("lester", 1)))
 
 		// Call the func with a response that has the appropriate status
 		coordinator.running.Add(1)

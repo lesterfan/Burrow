@@ -47,7 +47,7 @@ type Coordinator struct {
 // Configure validates that the configuration has a list of servers provided for the Zookeeper ensemble, of the form
 // host:port. It also checks the provided root path, using a default of "/burrow" if none has been provided.
 func (zc *Coordinator) Configure() {
-	zc.Log.Info("configuring")
+	zc.Log.Info("lesterZookeeper: configuring")
 
 	// if zookeeper.tls has been set, use the TLS connect function otherwise use default connect
 	if zc.connectFunc == nil && viper.IsSet("zookeeper.tls") {
@@ -68,6 +68,7 @@ func (zc *Coordinator) Configure() {
 	}
 
 	zc.App.ZookeeperRoot = viper.GetString("zookeeper.root-path")
+	zc.Log.Info("lesterZookeeper: zookeper.root-path = " + zc.App.ZookeeperRoot)
 	if !helpers.ValidateZookeeperPath(zc.App.ZookeeperRoot) {
 		panic("Zookeeper root path is not valid")
 	}
@@ -79,7 +80,7 @@ func (zc *Coordinator) Configure() {
 // it sets the ZookeeperConnected flag in the application context to true, and creates the ZookeeperExpired condition
 // flag. It then starts a main loop to watch for connection state changes.
 func (zc *Coordinator) Start() error {
-	zc.Log.Info("starting")
+	zc.Log.Info("lesterZookeeper: starting")
 
 	// This ZK client will be shared by other parts of Burrow for things like locks
 	// NOTE - samuel/go-zookeeper does not support chroot, so we pass along the configured root path in config
@@ -108,7 +109,7 @@ func (zc *Coordinator) Start() error {
 // Stop closes the connection to the Zookeeper ensemble and waits for the connection state monitor to exit (which it
 // will because the event channel will be closed).
 func (zc *Coordinator) Stop() error {
-	zc.Log.Info("stopping")
+	zc.Log.Info("lesterZookeeper: stopping")
 
 	// This will close the event channel, closing the mainLoop
 	zc.App.Zookeeper.Close()
@@ -118,6 +119,7 @@ func (zc *Coordinator) Stop() error {
 }
 
 func (zc *Coordinator) createRecursive(path string) error {
+	zc.Log.Info("lesterZookeeper: createRecursive")
 	if path == "/" {
 		return nil
 	}
@@ -134,17 +136,21 @@ func (zc *Coordinator) createRecursive(path string) error {
 }
 
 func (zc *Coordinator) mainLoop(eventChan <-chan zk.Event) {
+	zc.Log.Info("lesterZookeeper: mainLoop")
 	zc.running.Add(1)
 	defer zc.running.Done()
 
 	for event := range eventChan {
+		zc.Log.Info("lesterZookeeper: Received event type " + event.Type.String() + "from channel eventChan")
 		if event.Type == zk.EventSession {
 			switch event.State {
 			case zk.StateExpired:
+				zc.Log.Info("lesterZookeeper: Received type zk.StateExpired")
 				zc.Log.Error("session expired")
 				zc.App.ZookeeperConnected = false
 				zc.App.ZookeeperExpired.Broadcast()
 			case zk.StateConnected:
+				zc.Log.Info("lesterZookeeper: Received type zk.StateConnected")
 				if !zc.App.ZookeeperConnected {
 					zc.Log.Info("starting session")
 					zc.App.ZookeeperConnected = true
@@ -152,4 +158,5 @@ func (zc *Coordinator) mainLoop(eventChan <-chan zk.Event) {
 			}
 		}
 	}
+	zc.Log.Info("lesterZookeeper: Connection to eventChan is closed!")
 }

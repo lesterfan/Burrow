@@ -103,6 +103,7 @@ func getModuleForClass(app *protocol.ApplicationContext, moduleName, className s
 		zap.String("class", className),
 		zap.String("name", moduleName),
 	)
+	logger.Info("lester: getModuleForClass called!")
 
 	switch className {
 	case "http":
@@ -144,7 +145,7 @@ func getModuleForClass(app *protocol.ApplicationContext, moduleName, className s
 // their individual configurations and set them up. If there are any problems, it is expected that these funcs will
 // panic with a descriptive error message, as configuration failures are not recoverable errors.
 func (nc *Coordinator) Configure() {
-	nc.Log.Info("configuring")
+	nc.Log.Info("lesterNotifier: configuring")
 	nc.modules = make(map[string]protocol.Module)
 
 	nc.clusters = make(map[string]*clusterGroups)
@@ -171,6 +172,7 @@ func (nc *Coordinator) Configure() {
 	//        common to all notifier modules
 	for name := range viper.GetStringMap("notifier") {
 		configRoot := "notifier." + name
+		nc.Log.Info("lester: configRoot = " + configRoot)
 
 		// Set some defaults for common module fields
 		viper.SetDefault(configRoot+".interval", 60)
@@ -248,7 +250,7 @@ func (nc *Coordinator) Configure() {
 // goroutine which manages whether or not we are performing group evaluation requests. We also start the responseLoop
 // func that handles all evaluation replies and calls the module Notify methods as appropriate.
 func (nc *Coordinator) Start() error {
-	nc.Log.Info("starting")
+	nc.Log.Info("lesterNotifier: starting Coordinator")
 
 	// The notifier coordinator is responsible for fetching group evaluations and handing them off to the individual
 	// notifier modules.
@@ -278,7 +280,7 @@ func (nc *Coordinator) Start() error {
 // module Stop will not return until the module has been completely stopped. While an error can be returned, this func
 // always returns no error, as a failure during stopping is not a critical failure
 func (nc *Coordinator) Stop() error {
-	nc.Log.Info("stopping")
+	nc.Log.Info("lesterNotifier: stopping Coordinator")
 
 	nc.groupRefresh.Stop()
 	nc.doEvaluations = false
@@ -291,10 +293,12 @@ func (nc *Coordinator) Stop() error {
 }
 
 func (nc *Coordinator) manageEvalLoop() {
+	nc.Log.Info("lesterNotifier: starting manageEvalLoop()")
 	lock := nc.App.Zookeeper.NewLock(nc.App.ZookeeperRoot + "/notifier")
 
 	for {
 		time.Sleep(100 * time.Millisecond)
+		nc.Log.Info("lesterNotifier: loop in manageEvalLoop()")
 		err := lock.Lock()
 		if err != nil {
 			nc.Log.Warn("failed to get zk lock", zap.Error(err))
@@ -327,6 +331,7 @@ func (nc *Coordinator) manageEvalLoop() {
 
 // We keep this function trivial because tickers are not easy to mock/test in golang
 func (nc *Coordinator) tickerLoop() {
+	nc.Log.Info("lesterNotifier: starting tickerLoop()")
 	defer nc.running.Done()
 
 	for {
@@ -340,6 +345,7 @@ func (nc *Coordinator) tickerLoop() {
 }
 
 func (nc *Coordinator) sendClusterRequest() {
+	nc.Log.Info("lesterNotifier: sendClusterRequest()")
 	// Send a request to the storage module for a list of clusters, and spawn a goroutine to process it
 	request := &protocol.StorageRequest{
 		RequestType: protocol.StorageFetchClusters,
@@ -352,6 +358,7 @@ func (nc *Coordinator) sendClusterRequest() {
 }
 
 func (nc *Coordinator) sendEvaluatorRequests() {
+	nc.Log.Info("lesterNotifier: sendEvaluatorRequests()")
 	defer nc.running.Done()
 
 	for nc.doEvaluations {
@@ -386,6 +393,7 @@ func (nc *Coordinator) sendEvaluatorRequests() {
 }
 
 func (nc *Coordinator) responseLoop() {
+	nc.Log.Info("lesterNotifier: starting responseLoop()")
 	defer nc.running.Done()
 
 	for {
@@ -393,11 +401,13 @@ func (nc *Coordinator) responseLoop() {
 		case response := <-nc.evaluatorResponse:
 			// If response is nil, the group no longer exists
 			if response == nil {
+				nc.Log.Info("lesterNotifier: responseLoop(): the response was nil")
 				continue
 			}
 
 			// As long as the response is not NotFound, send it to the modules
 			if response.Status != protocol.StatusNotFound {
+				nc.Log.Info("lesterNotifier: responseLoop(): the response was StatusNotFound")
 				nc.running.Add(1)
 				go nc.checkAndSendResponseToModules(response)
 			}
@@ -408,6 +418,7 @@ func (nc *Coordinator) responseLoop() {
 }
 
 func (nc *Coordinator) checkAndSendResponseToModules(response *protocol.ConsumerGroupStatus) {
+	nc.Log.Info("lesterNotifier: starting checkAndSendResponseToModules()")
 	defer nc.running.Done()
 
 	nc.clusterLock.RLock()
@@ -430,6 +441,7 @@ func (nc *Coordinator) checkAndSendResponseToModules(response *protocol.Consumer
 
 	for _, genericModule := range nc.modules {
 		module := genericModule.(Module)
+		nc.Log.Info("lesterNotifier: Evaluating module = " + module.GetName())
 
 		// No whitelist means everything passes
 		groupWhitelist := module.GetGroupWhitelist()
@@ -454,6 +466,7 @@ func (nc *Coordinator) checkAndSendResponseToModules(response *protocol.Consumer
 }
 
 func (nc *Coordinator) processClusterList(replyChan chan interface{}) {
+	nc.Log.Info("lesterNotifier: starting processClusterList()")
 	defer nc.running.Done()
 
 	response := <-replyChan
@@ -495,6 +508,7 @@ func (nc *Coordinator) processClusterList(replyChan chan interface{}) {
 }
 
 func (nc *Coordinator) processConsumerList(cluster string, replyChan chan interface{}) {
+	nc.Log.Info("lesterNotifier: starting processConsumerList()")
 	defer nc.running.Done()
 
 	response := <-replyChan
@@ -527,8 +541,10 @@ func (nc *Coordinator) processConsumerList(cluster string, replyChan chan interf
 }
 
 func (nc *Coordinator) notifyModule(module Module, status *protocol.ConsumerGroupStatus, startTime time.Time, eventID string) {
+	nc.Log.Info("lesterNotifier: starting notifyModule()")
 	defer nc.running.Done()
 
+	module.GetLogger().Info("lester: notifyModule called with eventID " + eventID)
 	// Note - it is assumed that a read lock is already held when calling notifyModule
 	cgroup, ok := nc.clusters[status.Cluster].Groups[status.Group]
 	if !ok {
@@ -539,6 +555,7 @@ func (nc *Coordinator) notifyModule(module Module, status *protocol.ConsumerGrou
 	// Closed incidents get sent regardless of the threshold for the module
 	moduleName := module.GetName()
 	if (!startTime.IsZero()) && (status.Status == protocol.StatusOK) && viper.GetBool("notifier."+moduleName+".send-close") {
+		module.GetLogger().Info("lester: calling Notify() with eventID " + eventID)
 		module.Notify(status, eventID, startTime, true)
 		cgroup.LastNotify[module.GetName()] = time.Time{}
 		return
@@ -552,6 +569,7 @@ func (nc *Coordinator) notifyModule(module Module, status *protocol.ConsumerGrou
 	// Only send the notification if it's been at least our Interval since the last one for this group
 	currentTime := time.Now()
 	if currentTime.Sub(cgroup.LastNotify[module.GetName()]) > (time.Duration(viper.GetInt("notifier."+moduleName+".send-interval")) * time.Second) {
+		module.GetLogger().Info("lester: calling Notify() with eventID " + eventID)
 		module.Notify(status, eventID, startTime, false)
 		cgroup.LastNotify[module.GetName()] = currentTime
 	}

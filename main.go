@@ -107,9 +107,15 @@ func main() {
 		core.OpenOutLog(stdoutLogfile)
 	}
 
+	logger, _ := core.ConfigureLogger()
+
 	// Register signal handlers for exiting
+	logger.Info("lesterMain: starting make(...)")
 	exitChannel := make(chan os.Signal, 1)
+	logger.Info("lesterMain: finished make(...)")
+	logger.Info("lesterMain: calling signal.Notify(...)")
 	signal.Notify(exitChannel, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM)
+	logger.Info("lesterMain: finished signal.Notify(...)")
 
 	// This triggers handleExit (after other defers), which will then call os.Exit properly
 	panic(exitCode{core.Start(nil, exitChannel)})

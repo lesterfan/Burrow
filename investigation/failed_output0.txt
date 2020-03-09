@@ -1,0 +1,83 @@
+{"level":"info","ts":1583804361.2986915,"msg":"lester_consumerSubsystem: Calling module.partitionConsumer(...)","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer"}
+{"level":"info","ts":1583804361.2987058,"msg":"lester_consumerSubsystem: Now consuming partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":37}
+{"level":"info","ts":1583804361.6426282,"msg":"lester_consumerSubsystem: Consumed partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":37}
+{"level":"info","ts":1583804361.642699,"msg":"lester_consumerSubsystem: Consumed partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":37}
+{"level":"info","ts":1583804361.6427147,"msg":"lester_consumerSubsystem: Calling module.partitionConsumer(...)","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer"}
+{"level":"info","ts":1583804361.6427443,"msg":"lester_consumerSubsystem: Now consuming partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":38}
+{"level":"info","ts":1583804362.068875,"msg":"lester_consumerSubsystem: Consumed partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":38}
+{"level":"info","ts":1583804362.0689378,"msg":"lester_consumerSubsystem: Consumed partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":38}
+{"level":"info","ts":1583804362.0689514,"msg":"lester_consumerSubsystem: Calling module.partitionConsumer(...)","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer"}
+{"level":"info","ts":1583804362.0690415,"msg":"lester_consumerSubsystem: Now consuming partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":39}
+{"level":"info","ts":1583804362.5774472,"msg":"lester_consumerSubsystem: Consumed partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":39}
+{"level":"info","ts":1583804362.577528,"msg":"lester_consumerSubsystem: Consumed partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":39}
+{"level":"info","ts":1583804362.5776887,"msg":"lester_consumerSubsystem: Calling module.partitionConsumer(...)","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer"}
+{"level":"info","ts":1583804362.5777466,"msg":"lester_consumerSubsystem: Now consuming partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":40}
+{"level":"info","ts":1583804362.9361265,"msg":"lester_consumerSubsystem: Consumed partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":40}
+{"level":"info","ts":1583804362.9361825,"msg":"lester_consumerSubsystem: Consumed partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":40}
+{"level":"info","ts":1583804362.9361944,"msg":"lester_consumerSubsystem: Calling module.partitionConsumer(...)","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer"}
+{"level":"info","ts":1583804362.9362051,"msg":"lester_consumerSubsystem: Now consuming partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":41}
+{"level":"info","ts":1583804363.3659346,"msg":"lester_consumerSubsystem: Consumed partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":41}
+{"level":"info","ts":1583804363.3659904,"msg":"lester_consumerSubsystem: Consumed partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":41}
+{"level":"info","ts":1583804363.3660307,"msg":"lester_consumerSubsystem: Calling module.partitionConsumer(...)","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer"}
+{"level":"info","ts":1583804363.3660936,"msg":"lester_consumerSubsystem: Now consuming partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":42}
+{"level":"info","ts":1583804363.8778627,"msg":"lester_consumerSubsystem: Consumed partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":42}
+{"level":"info","ts":1583804363.8779118,"msg":"lester_consumerSubsystem: Consumed partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":42}
+{"level":"info","ts":1583804363.877923,"msg":"lester_consumerSubsystem: Calling module.partitionConsumer(...)","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer"}
+{"level":"info","ts":1583804363.8779304,"msg":"lester_consumerSubsystem: Now consuming partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":43}
+{"level":"info","ts":1583804364.2183604,"msg":"lester_consumerSubsystem: Consumed partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":43}
+{"level":"info","ts":1583804364.2184036,"msg":"lester_consumerSubsystem: Consumed partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":43}
+{"level":"info","ts":1583804364.218411,"msg":"lester_consumerSubsystem: Calling module.partitionConsumer(...)","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer"}
+{"level":"info","ts":1583804364.2184312,"msg":"lester_consumerSubsystem: Now consuming partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":44}
+{"level":"info","ts":1583804364.6969898,"msg":"lester_consumerSubsystem: Consumed partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":44}
+{"level":"info","ts":1583804364.697045,"msg":"lester_consumerSubsystem: Consumed partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":44}
+{"level":"info","ts":1583804364.697057,"msg":"lester_consumerSubsystem: Calling module.partitionConsumer(...)","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer"}
+{"level":"info","ts":1583804364.6970692,"msg":"lester_consumerSubsystem: Now consuming partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":45}
+{"level":"info","ts":1583804365.1777701,"msg":"lester_consumerSubsystem: Consumed partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":45}
+{"level":"info","ts":1583804365.1778345,"msg":"lester_consumerSubsystem: Consumed partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":45}
+{"level":"info","ts":1583804365.1778462,"msg":"lester_consumerSubsystem: Calling module.partitionConsumer(...)","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer"}
+{"level":"info","ts":1583804365.1778574,"msg":"lester_consumerSubsystem: Now consuming partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":46}
+{"level":"info","ts":1583804365.2667236,"msg":"lester_consumerSubsystem: Consumed partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":46}
+{"level":"info","ts":1583804365.2667952,"msg":"lester_consumerSubsystem: Consumed partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":46}
+{"level":"info","ts":1583804365.2668042,"msg":"lester_consumerSubsystem: Calling module.partitionConsumer(...)","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer"}
+{"level":"info","ts":1583804365.2668116,"msg":"lester_consumerSubsystem: Now consuming partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":47}
+{"level":"info","ts":1583804365.7832816,"msg":"lester_consumerSubsystem: Consumed partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":47}
+{"level":"info","ts":1583804365.7833335,"msg":"lester_consumerSubsystem: Consumed partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":47}
+{"level":"info","ts":1583804365.7833474,"msg":"lester_consumerSubsystem: Calling module.partitionConsumer(...)","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer"}
+{"level":"info","ts":1583804365.78336,"msg":"lester_consumerSubsystem: Now consuming partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":48}
+{"level":"info","ts":1583804366.238433,"msg":"lester_consumerSubsystem: Consumed partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":48}
+{"level":"info","ts":1583804366.2385063,"msg":"lester_consumerSubsystem: Consumed partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":48}
+{"level":"info","ts":1583804366.2386246,"msg":"lester_consumerSubsystem: Calling module.partitionConsumer(...)","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer"}
+{"level":"info","ts":1583804366.2386508,"msg":"lester_consumerSubsystem: Now consuming partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":49}
+{"level":"info","ts":1583804366.5913906,"msg":"lester_consumerSubsystem: Consumed partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":49}
+{"level":"info","ts":1583804366.591452,"msg":"lester_consumerSubsystem: Consumed partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":49}
+{"level":"info","ts":1583804366.591463,"msg":"lester_consumerSubsystem: Calling module.partitionConsumer(...)","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer"}
+{"level":"info","ts":1583804433.0563977,"msg":"cluster or consumer not found","type":"module","coordinator":"evaluator","class":"caching","name":"default","cluster":"kflc1d","consumer":"km-consumer","showall":false}
+{"level":"warn","ts":1583804463.0571444,"msg":"unknown consumer","type":"module","coordinator":"storage","class":"inmemory","name":"mem","worker":0,"cluster":"kflc1d","consumer":"km-consumer","topic":"","partition":0,"topic_partition_count":0,"offset":0,"timestamp":0,"owner":"","client_id":"","request":"StorageFetchConsumer"}
+{"level":"info","ts":1583804463.0572617,"msg":"cluster or consumer not found","type":"module","coordinator":"evaluator","class":"caching","name":"default","cluster":"kflc1d","consumer":"km-consumer","showall":false
+
+After sending the kill signal:
+{"level":"info","ts":1583804365.78336,"msg":"lester_consumerSubsystem: Now consuming partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":48}
+{"level":"info","ts":1583804366.238433,"msg":"lester_consumerSubsystem: Consumed partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":48}
+{"level":"info","ts":1583804366.2385063,"msg":"lester_consumerSubsystem: Consumed partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":48}
+{"level":"info","ts":1583804366.2386246,"msg":"lester_consumerSubsystem: Calling module.partitionConsumer(...)","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer"}
+{"level":"info","ts":1583804366.2386508,"msg":"lester_consumerSubsystem: Now consuming partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":49}
+{"level":"info","ts":1583804366.5913906,"msg":"lester_consumerSubsystem: Consumed partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":49}
+{"level":"info","ts":1583804366.591452,"msg":"lester_consumerSubsystem: Consumed partition. ","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer","topic":"__consumer_offsets","partition":49}
+{"level":"info","ts":1583804366.591463,"msg":"lester_consumerSubsystem: Calling module.partitionConsumer(...)","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer"}
+{"level":"info","ts":1583804433.0563977,"msg":"cluster or consumer not found","type":"module","coordinator":"evaluator","class":"caching","name":"default","cluster":"kflc1d","consumer":"km-consumer","showall":false}
+{"level":"warn","ts":1583804463.0571444,"msg":"unknown consumer","type":"module","coordinator":"storage","class":"inmemory","name":"mem","worker":0,"cluster":"kflc1d","consumer":"km-consumer","topic":"","partition":0,"topic_partition_count":0,"offset":0,"timestamp":0,"owner":"","client_id":"","request":"StorageFetchConsumer"}
+{"level":"info","ts":1583804463.0572617,"msg":"cluster or consumer not found","type":"module","coordinator":"evaluator","class":"caching","name":"default","cluster":"kflc1d","consumer":"km-consumer","showall":false}
+{"level":"info","ts":1583805352.9465315,"msg":"Shutdown triggered","type":"main","name":"burrow"}
+{"level":"info","ts":1583805352.94661,"msg":"stopping","type":"coordinator","name":"consumer"}
+{"level":"info","ts":1583805352.9466186,"msg":"stopping","type":"module","coordinator":"consumer","class":"kafka","name":"kflc1d-consumer"}
+{"level":"info","ts":1583805352.9467838,"msg":"stopping","type":"coordinator","name":"cluster"}
+{"level":"info","ts":1583805352.9468215,"msg":"stopping","type":"module","coordinator":"cluster","class":"kafka","name":"kflc1d"}
+{"level":"info","ts":1583805352.946832,"msg":"stopping","type":"coordinator","name":"notifier"}
+{"level":"info","ts":1583805352.946853,"msg":"shutdown","type":"coordinator","name":"httpserver"}
+{"level":"info","ts":1583805352.9474757,"msg":"stopping","type":"coordinator","name":"evaluator"}
+{"level":"info","ts":1583805352.9474964,"msg":"stopping","type":"module","coordinator":"evaluator","class":"caching","name":"default"}
+{"level":"info","ts":1583805352.9475052,"msg":"stopping","type":"coordinator","name":"storage"}
+{"level":"info","ts":1583805352.9475126,"msg":"stopping","type":"module","coordinator":"storage","class":"inmemory","name":"mem"}
+{"level":"info","ts":1583805352.9475384,"msg":"stopping","type":"coordinator","name":"zookeeper"}
+{"level":"info","ts":1583805352.9511783,"msg":"recv loop terminated: err=EOF","type":"coordinator","name":"zookeeper"}
+{"level":"info","ts":1583805352.95128,"msg":"send loop terminated: err=<nil>","type":"coordinator","name":"zookeeper"}
